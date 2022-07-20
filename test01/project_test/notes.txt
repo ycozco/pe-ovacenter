@@ -1,0 +1,71 @@
+virtualenv python3 -p .     ##creating virtualenv
+source bin/activate         ##activating virtualenv
+pip install -r requirements.txt ##installing requirements.txt
+django-admin startproject project_name ##creating django project
+python manage.py runserver ##running django server
+python manage.py startapp app_name ##creating django app
+
+my_app/views.py
+    def index(request):
+        return HttpResponse("Hello, world")
+general page (here manage.py)
+    mysite/urls.py
+    from django.contrib import admin
+    from django.urls import include, path
+    urlpatterns = [
+        path('admin/', admin.site.urls),
+        path('', include('my_app.urls')),
+    ]
+# now start server
+python manage.py runserver
+# now go to http://localhost:8000/my_app/
+python manage.py migrate ##creating database
+
+## creating models att models.py
+from django.db import models
+class User(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    password = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.name
+class Message(models.Model):
+    user = models.ForeignKey(User, related_name="messages")
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.message
+class Comment(models.Model):
+    message = models.ForeignKey(Message, related_name="comments")
+    user = models.ForeignKey(User, related_name="comments")
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return self.comment
+## now registar our models att mysite/settings.py
+INSTALLED_APPS = [
+    'my_app.apps.MyAppConfig',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'my_app',
+]
+
+## now make migrations with myapp name
+python manage.py makemigrations my_app
+## now migrate
+python manage.py sqlmigrate my_app
+## now migrate
+python manage.py migrate
+
+## now create superuser
+python manage.py createsuperuser
+## now go to http://localhost:8000/admin/
+python manage.py runserver ## runserver
